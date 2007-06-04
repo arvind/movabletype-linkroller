@@ -1,0 +1,44 @@
+label: Link Roller
+version: 3.0
+
+object_types:
+    link: LinkRoller::Link
+    bundle: LinkRoller::Bundle
+    
+permissions:
+    blog.manage_links:
+        label: Manage Links
+        group: auth_pub
+        order: 550
+
+menus:
+    create:link:
+       label: Link
+       order: 250
+       mode: view
+       args: 
+           _type: link
+       permission: manage_links
+       requires_blog: 1
+       
+    edit:link:
+        label: Links
+        order: 250
+        mode: list_links
+        permission: manage_links
+        
+    organize:bundle:
+        label: Bundles
+        order: 450
+        mode: list_cat
+        args:
+            _type: bundle
+        permission: manage_links
+        requires_blog: 1
+    
+applications:
+    cms:
+        methods:
+            list_links: $LinkRoller::LinkRoller::CMS::list_links
+        
+    
