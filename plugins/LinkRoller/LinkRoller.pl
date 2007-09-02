@@ -54,8 +54,8 @@ sub init_registry {
 				},
 				methods => {
 					'view_link' => '$LinkRoller::LinkRoller::App::CMS::view_link',
-					'list_link' => '$LinkRoller::LinkRoller::App::CMS::list_link',
-					'save_link' => '$LinkRoller::LinkRoller::App::CMS::save_link'
+					'save_link' => '$LinkRoller::LinkRoller::App::CMS::save_link',
+					'save_link_prefs' => '$LinkRoller::LinkRoller::App::CMS::save_link_prefs'
 				}
 			}
 		}

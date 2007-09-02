@@ -5,8 +5,127 @@
 </mt:if>
 <mt:setvarblock name="related_content">&nbsp;</mt:setvarblock>
 <mt:setvarblock name="html_head" append="1">
+	<style type="text/css" media="screen">
+		.actions-bar-top { margin-bottom: 10px; }
+	</style>
+</mt:setvarblock>
+<mt:setvarblock name="js_include" append="1">
+	<script type="text/javascript" src="<mt:var name="static_uri">js/tc/focus.js"></script>
+    <script type="text/javascript" src="<mt:var name="static_uri">js/tc/tagcomplete.js"></script>
+	<script type="text/javascript" src="<$mt:var name="static_uri"$>js/tc/client.js"></script>
 	<script type="text/javascript">
 	<!--
+		var customizable_fields = new Array('hidden', 'blog_author', 'description', 'tags', 'target', 'xfn');
+		var custom_fields = new Array();
+		<mt:if name="disp_prefs_show_hidden">custom_fields.push('hidden');</mt:if>
+		<mt:if name="disp_prefs_show_blog_author">custom_fields.push('blog_author');</mt:if>
+		<mt:if name="disp_prefs_show_description">custom_fields.push('description');</mt:if>
+		<mt:if name="disp_prefs_show_tags">custom_fields.push('tags');</mt:if>
+		<mt:if name="disp_prefs_show_target">custom_fields.push('target');</mt:if>
+		<mt:if name="disp_prefs_show_xfn">custom_fields.push('xfn');</mt:if>
+		
+		function setCustomFields() {
+		    var i = 0;
+
+		    // empty the custom fields array
+		    custom_fields = new Array();
+
+		    // we loop over all customizable fields here (which includes
+		    // all the metadata fields). we want to hide the metadata (or
+		    // other fieldset, if we grow another customizable fieldset)
+		    // from view if all fields within it are hidden. alternatively,
+		    // if the user enables a field, the fieldset should be enabled.
+
+		    var fieldsets = DOM.getElementsByTagAndAttribute(document, "fieldset", "mt:fields");
+		    var fs_state = {};
+		    var fs_map = {};
+		    for (var i = 0; i < fieldsets.length; i++) {
+		        var fieldset = fieldsets[i];
+		        var idents = fieldset.getAttribute("mt:fields");
+		        if (idents) {
+		            fs_state[fieldset.id] = 'hidden';
+		            var identlist = idents.split(/\s+/);
+		            if (identlist && identlist.length) {
+		                for (var j = 0; j < identlist.length; j++)
+		                    fs_map[identlist[j]] = fieldset;
+		            }
+		        }
+		    }
+
+		    // add only the fields which are currently checked and enabled
+		    for (i = 0; i < customizable_fields.length; i++) {
+		        var hide = true;
+		        var field_object = TC.elementOrId("custom-prefs-"+customizable_fields[i]);
+
+		        if (field_object && field_object.checked && !field_object.disabled) {
+		            custom_fields.push(customizable_fields[i]);
+		            hide = false;
+		        }
+		        var div = TC.elementOrId(customizable_fields[i] + '-field');
+		        if (div) {
+		            var fieldset = fs_map[customizable_fields[i]];
+
+		            if (hide) {
+		                TC.addClassName(div, 'hidden');
+		            } else {
+		                if (fieldset) fs_state[fieldset.id] = null;
+		                TC.removeClassName(div, 'hidden');
+		            }
+		        }
+		    }
+
+		    for (var i = 0; i < fieldsets.length; i++) {
+		        var state = fs_state[fieldsets[i].id];
+		        if (state == 'hidden')
+		            TC.addClassName(fieldsets[i], "hidden");
+		        else
+		            TC.removeClassName(fieldsets[i], "hidden");
+		    }
+
+		    var entry_prefs = getByID('entry_prefs');
+		    entry_prefs.value = 'Custom';
+
+		    return false;
+		}
+		
+		function savedEntryOptions(c) {
+		    showMsg('<__trans phrase="Your link screen preferences have been saved." escape="js">', 'saved-prefs-msg', 'success');
+		}
+
+		function saveEntryFieldOptions() {
+		    var frm = document.forms['display-options-form'];
+		    var entry_prefs = getByID('entry_prefs');
+		    var mode;
+		    mode = entry_prefs.value;
+
+		    var custom_prefs = '';
+		    var bar_position;
+		    for (var i = 0; i < frm.elements.length; i++) {
+		        var fld = frm.elements[i];
+		        if (fld.name == 'bar_position') {
+		            if (fld.checked) bar_position = fld.value;
+		        } else if (fld.name == 'entry_prefs') {
+		            mode = fld.value;
+		        } else if (fld.name == 'custom_prefs') {
+		            if (!fld.disabled && fld.checked)
+		                custom_prefs += '&custom_prefs=' + fld.value;
+		        }
+		    }
+		    // TBD: we need to get the blog id from the selector control
+		    // itself
+		    var param = '__mode=save_link_prefs'
+		        + '&_type=<mt:var name="object_type">'
+		        + '&blog_id=<mt:var name="blog_id">'
+		        + '&entry_prefs=' + mode
+		        + '&magic_token=<mt:var name="magic_token">'
+		        + '&bar_position=' + bar_position;
+		    if (mode == 'Custom') {
+		        param += custom_prefs;
+		    }
+		    var params = { uri: '<mt:var name="script_url">', method: 'POST', arguments: param, load: savedEntryOptions };
+		    TC.Client.call(params);
+		}
+	
 		function changeTarget(s) {
 			if (s.options[s.selectedIndex].value == 'other') {
 				getByID('other_target_input').style.display = 'block'; 
@@ -21,7 +140,7 @@
 		  return eMe.checked;
 		}
 
-		function upit() {
+		function checkXFN() {
 			var isMe = meChecked(); //document.getElementById('me').checked;
 			var div = document.getElementById('xfn-generator');
 			var inputColl = div.getElementsByTagName('input');
@@ -48,37 +167,213 @@
 			var aInputs = div.getElementsByTagName('input');
 	
 			for (var i = 0; i < aInputs.length; i++) {		
-				 aInputs[i].onclick = aInputs[i].onkeyup = upit;
+				 aInputs[i].onclick = aInputs[i].onkeyup = checkXFN;
 			}
-
+			checkXFN();
 		}
+		
+		var tag_delim = '<mt:var name="auth_pref_tag_delim">';
+		
+		// array of tag names
+		var tagList;
+		// raw structure of tags (hash of tag -> count)
+		var tags;
+		
+		<mt:if name="tags_js">
+		tags = <$mt:var name="tags_js"$>;
+		</mt:if>
+		
+		RegExp.escape = (function() {
+		  var specials = [
+		    '/', '.', '*', '+', '?', '|',
+		    '(', ')', '[', ']', '{', '}', '\\'
+		  ];
+
+		  sRE = new RegExp(
+		    '(\\' + specials.join('|\\') + ')', 'g'
+		  );
+
+		  return function(text) {
+		    return text.replace(sRE, '\\$1');
+		  }
+		})();
+
+		function tagSplit(str) {
+		    var delim = RegExp.escape(tag_delim);
+		    var delim_scan = new RegExp('^((([\'"])(.*?)\\3[^' + delim + ']*?|.*?)(' + delim + '\\s*|$))', '');
+		    str = str.replace(/(^\s+|\s+$)/g, '');
+		    var tags = [];
+		    while (str.length && str.match(delim_scan)) {
+		        str = str.substr(RegExp.$1.length);
+		        var tag = RegExp.$4 ? RegExp.$4 : RegExp.$2;
+		        tag = tag.replace(/(^\s+|\s+$)/g, '');
+		        tag = tag.replace(/\s+/g, ' ');
+		        if (tag != '') tags.push(tag);
+		    }
+		    return tags;
+		}
+		
+		<mt:if name="defer_tag_load">
+		function deferredTagLoad() {
+		    /* http://del.icio.us/feeds/json/tags/username */
+		    TC.Client.call({
+		        'load': tagsLoaded,
+		        'method': 'POST',
+		        'uri': '<$mt:var name="mt_url"$>',
+		        'arguments': { '__mode': 'js_tag_list',
+		            'blog_id': '<$mt:var name="blog_id"$>',
+		            'magic_token': '<$mt:var name="magic_token"$>'}
+		    });
+		}
+
+		function tagsLoaded(c, result) {
+		    try {
+		        var x = eval('(' + result + ')');
+		        if (x.error) {
+		            // suppress error. tag completion isn't critical
+		            return;
+		        }
+		        tags = x.result.tags;
+		    } catch (e) {
+		    }
+		    initTags();
+		}
+		</mt:if>
+
+		var tagPos = 0;
+		function initTags() {
+		    /* browsers don't want to cache the tags field, so we use a hidden input field to cache them */
+		    var t = getByID('tags-cache');
+		    if ( t ) {
+		        log('tag cache:'+t.value);
+		        var v = getByID('tags');
+		        if ( t.value )
+		            v.value = t.value;
+		        DOM.addEventListener( v, "change", function() { log('caching tags'); t.value = v.value; } );
+		    }
+		    if (!tags || tags.length == 0) return;
+
+		    tagList = [];
+		    for (var tag in tags)
+		        if ( tags.hasOwnProperty( tag ) )
+		            tagList.push( tag );
+		    autoTag = new TC.TagComplete("tags", tagList);
+		    autoTag.delimiter = tag_delim;
+		}
+		
+		function init() {
+		    // setup
+		    <mt:if name="defer_tag_load">window.setTimeout("deferredTagLoad()", 500);<mt:else>
+		    <mt:if name="tags_js">initTags();</mt:if></mt:if>
+			initXFN();
+		}
+		
+		TC.attachLoadEvent( init );
 	//-->
 	</script>
 	<link rel="stylesheet" href="<mt:var name="static_uri">plugins/LinkRoller/styles-linkroller.css" type="text/css" media="screen" title="LinkRoller Stylesheet" charset="utf-8" />
 </mt:setvarblock>
 <mt:setvar name="position_actions_bottom" value="1">
 <mt:setvarblock name="content_header">
-    <mt:if name="saved">
-        <mtapp:statusmsg
-            id="saved"
-            class="success">
-            <__trans phrase="Your changes have been saved.">
-        </mtapp:statusmsg>
-    </mt:if>
+	
+	<div id="msg-block">
+	    <mt:if name="saved">
+	        <mtapp:statusmsg
+	            id="saved"
+	            class="success">
+	            <__trans phrase="Your changes have been saved.">
+	        </mtapp:statusmsg>
+	    </mt:if>
 
-    <mt:if name="saved_deleted">
-        <mtapp:statusmsg
-            id="saved-deleted"
-            class="success">
-            <__trans phrase="The selected link(s) has been deleted from the database.">
-        </mtapp:statusmsg>
-    </mt:if>
+	    <mt:if name="saved_prefs">
+	        <mtapp:statusmsg    
+	            id="saved-prefs"
+	            class="success">
+	            <__trans phrase="Your customization preferences have been saved, and are visible in the form below.">
+	        </mtapp:statusmsg>
+	    </mt:if>
 
-	<mtapp:statusmsg
-	 id="blank-fields"
-	 class="error hidden">
-		<__trans phrase="Please ensure all required fields (highlighted) have been filled in.">
-	</mtapp:statusmsg>
+	    <mt:if name="saved_deleted">
+	        <mtapp:statusmsg
+	            id="saved-deleted"
+	            class="success">
+	            <__trans phrase="The selected link(s) has been deleted from the database.">
+	        </mtapp:statusmsg>
+	    </mt:if>
+
+		<mtapp:statusmsg
+		 id="blank-fields"
+		 class="error hidden">
+			<__trans phrase="Please ensure all required fields (highlighted) have been filled in.">
+		</mtapp:statusmsg>
+	</div>
+</mt:setvarblock>
+<mt:setvarblock name="related_content">
+    <mtapp:widget
+        id="display-options-widget"
+        label="<__trans phrase="Display Options">"
+        label_link="javascript:void(0)"
+        label_onclick="return toggleEntryDisplayOptions();">
+
+        <form name="display-options-form" method="post" action="<mt:var name="script_url">">
+            <input type="hidden" id="entry_prefs" name="entry_prefs" value="<mt:if name="disp_prefs_default">Default<mt:else>Custom</mt:if>">
+                <mtapp:setting
+                    id="entry_fields"
+                    label="<__trans phrase="Fields">"
+                    label_class="display-options">
+                    <ul>
+                        <li><label><input type="checkbox" name="custom_prefs" id="custom-prefs-name" value="name" checked="checked" disabled="disabled" class="cb" /> <__trans phrase="Name"></label></li>
+                        <li><label><input type="checkbox" name="custom_prefs" id="custom-prefs-url" value="url" checked="checked" disabled="disabled" class="cb" /> <__trans phrase="URL"></label></li>
+						<li><label><input type="checkbox" name="custom_prefs" id="custom-prefs-description" value="description" onclick="setCustomFields(); return true"<mt:if name="disp_prefs_show_description"> checked="checked"</mt:if> class="cb" /> <__trans phrase="Description"></label></li>
+                        <li><label><input type="checkbox" onclick="setCustomFields(); return true;" name="custom_prefs" id="custom-prefs-tags" value="tags" <mt:if name="disp_prefs_show_tags"> checked="checked"</mt:if> class="cb" /> <__trans phrase="Tags"></label></li>
+	
+						<li><label><input type="checkbox" onclick="setCustomFields(); return true;" name="custom_prefs" id="custom-prefs-blog_author" value="blog_author" <mt:if name="disp_prefs_show_blog_author"> checked="checked"</mt:if> class="cb" /> <__trans phrase="Content Author"></label></li>
+							
+						<li><label><input type="checkbox" onclick="setCustomFields(); return true;" name="custom_prefs" id="custom-prefs-hidden" value="hidden" <mt:if name="disp_prefs_show_hidden"> checked="checked"</mt:if> class="cb" /> <__trans phrase="Visibility"></label></li>
+							
+						<li><label><input type="checkbox" onclick="setCustomFields(); return true;" name="custom_prefs" id="custom-prefs-target" value="target" <mt:if name="disp_prefs_show_target"> checked="checked"</mt:if> class="cb" /> <__trans phrase="Target"></label></li>
+							
+						<li><label><input type="checkbox" onclick="setCustomFields(); return true;" name="custom_prefs" id="custom-prefs-xfn" value="xfn" <mt:if name="disp_prefs_show_xfn"> checked="checked"</mt:if> class="cb" /> <__trans phrase="XFN Relationship"></label></li>
+                    </ul>
+                </mtapp:setting>
+                <mtapp:setting
+                    id="action_bars"
+                    label="<__trans phrase="Actions">"
+                    label_class="display-options">
+                    <ul class="action-button-options">
+                        <li><label><input type="radio" name="bar_position" id="bar_position_top" value="Top"<mt:unless name="position_actions_both"><mt:if name="position_actions_top"> checked="checked"</mt:if></mt:unless> onclick="setBarPosition(this)" class="rb" /> <__trans phrase="Top"></label></li>
+                        <li><label><input type="radio" name="bar_position" id="bar_position_both" value="Both"<mt:if name="position_actions_both"> checked="checked"</mt:if> onclick="setBarPosition(this)" class="rb" /> <__trans phrase="Both"></label></li>
+                        <li><label><input type="radio" name="bar_position" id="bar_position_bottom" value="Bottom"<mt:unless name="position_actions_both"><mt:if name="position_actions_bottom"> checked="checked"</mt:if></mt:unless> onclick="setBarPosition(this)" class="rb" /> <__trans phrase="Bottom"></label></li>
+                    </ul>
+                </mtapp:setting>
+            <div class="actions-bar display-options-actions-bar buttons">
+                <div class="actions-bar-inner">
+                    <a href="javascript:void(0)"
+                        onclick="saveEntryFieldOptions(); return toggleEntryDisplayOptions();"
+                        title="<__trans phrase="Save display options">"
+                        ><__trans phrase="OK"></a>
+                    <a href="javascript:void(0)"
+                        onclick="return toggleEntryDisplayOptions();"
+                        title="<__trans phrase="Close display options">"
+                        ><__trans phrase="Cancel"></a>
+                </div>
+            </div>
+        </form>
+    </mtapp:widget>
+</mt:setvarblock>
+<mt:setvarblock name="action_buttons">
+    <button
+        type="submit"
+        accesskey="s"
+        title="<__trans phrase="Save this [_1] (s)" params="<mt:var name="object_label" lower_case="1">">"
+        class="primary-button"
+        ><__trans phrase="Save"></button>
+    <mt:if name="id"><button
+        onclick="doRemoveItems(this.form, '<__trans phrase="field">', '<__trans phrase="fields">', 'id', {'return_args' : '__mode=list_fields&amp;blog_id=<mt:var name="blog_id">'})"
+        type="submit"
+        accesskey="x"
+        title="<__trans phrase="Delete this [_1] (x)" params="<mt:var name="object_label" lower_case="1">">"
+        ><__trans phrase="Delete"></button></mt:if>
 </mt:setvarblock>
 <mt:include name="include/header.tmpl">
 	
@@ -88,10 +383,13 @@
 		<input type="hidden" name="blog_id" value="<mt:var name="blog_id">" id="blog_id" />
 		<input type="hidden" name="return_args" value="<mt:var name="return_args" escape="html">" id="return_args" />
 		<input type="hidden" name="magic_token" value="<mt:var name="magic_token" escape="html">" id="magic_token" />
+
+	<mt:include name="include/actions_bar.tmpl" hide_pager="1" settings_bar="1">
 			
 	<mtapp:settinggroup id="vitals">
 		<mtapp:setting
 		 id="hide"
+		 shown="$disp_prefs_show_hidden"
 		 label="<__trans phrase="Hide">">
 			<p class="hint"><label><input type="checkbox" name="hidden" value="1" id="hidden"<mt:if name="hidden"> checked="checked"</mt:if> /> <__trans phrase="Check to prevent this link from being published"></label></p>
 		</mtapp:setting>
@@ -117,6 +415,7 @@
 		
 		<mtapp:setting
 		 id="blog_author"
+		 shown="$disp_prefs_show_blog_author"
 		 label="<__trans phrase="Author(s)">"
 		 hint="<__trans phrase="Who created the content being linked here?">"
 		 show_hint="1">
@@ -127,25 +426,37 @@
 		
 		<mtapp:setting
 		 id="description"
+		 shown="$disp_prefs_show_description"
 		 label="<__trans phrase="Description">">
 			<textarea name="description" id="description" class="full-width" rows="5"><mt:var name="description" escape="html"></textarea>
 		</mtapp:setting>
 		
 	</mtapp:settinggroup>
 	
-	<mtapp:settinggroup id="metadata">
+	<mt:setvarblock name="show_metadata"><mt:var name="disp_prefs_show_tags"><mt:var name="disp_prefs_show_target"><mt:var name="disp_prefs_show_xfn"></mtsetvarblock>
+	
+	<fieldset id="link-metadata-settings" mt:fields="tags target xfn" class="pkg<mt:unless name="show_metadata"> hidden</mt:unless>">
 		<h3><__trans phrase="Metadata"></h3>
 		
-		<mtapp:setting
-		 id="tags"
-		 label="<__trans phrase="Tags">">
-			<div class="textarea-wrapper">
-				<input type="text" name="tags" value="<mt:var name="tags" escape="html">" id="tags" class="full-width" />
-			</div>
-		</mtapp:setting>
+	    <mtapp:setting
+	     id="tags"
+	     shown="$disp_prefs_show_tags"
+	     label="<__trans phrase="Tags">"
+	     help_page="entries"
+	     help_section="entry_tags">
+	        <div class="textarea-wrapper">
+	            <input name="tags" id="tags" class="full-width" tabindex="5" value="<$mt:var name="tags" escape="html"$>" mt:watch-change="1" autocomplete="off" />
+	            <input type="hidden" name="_ignore_tags" id="tags-cache" value="<$mt:var name="tags" escape="html"$>" />
+	        </div>
+	        <!-- FIXME - move this styling to the ie hacks css file -->
+	        <!--[if lte IE 6.5]><div style="position:relative;"><![endif]-->
+	        <div id="tags_completion"></div>
+	        <!--[if lte IE 6.5]></div><![endif]-->
+	    </mtapp:setting>
 		
 		<mtapp:setting
 		 id="target"
+		 shown="$disp_prefs_show_target"
 		 label="<__trans phrase="Target">"		 
 		 hint="<__trans phrase="The name of a frame where this link should open">"
 		 show_hint="1">
@@ -160,13 +471,12 @@
 			<input type="text" name="target" value="<mt:var name="target" escape="html">" id="other_target_input" class="quarter-width" style="display: none;" />
 		</mtapp:setting>
 		
-		<mt:if name="customfields"><mtapp:fields></mt:if>
-		
 		<mtapp:setting
 		 id="xfn"
+		 shown="$disp_prefs_show_xfn"
 		 label="<__trans phrase="XFN Relationship">">
 			<div class="textarea-wrapper">
-				<input type="text" name="rel" id="rel" size="50" value="<mt:var name="rel">" class="full-width" />
+				<input type="text" name="rel" id="rel" size="50" value="<mt:var name="rel">" class="full-width" readonly="readonly" />
 			</div>
 
 			<div id="xfn-generator">
@@ -250,22 +560,8 @@
 			</div>
 		</mtapp:setting>
 		
-	</mtapp:settinggroup>
+	</fieldset>
 	
-	<mt:setvarblock name="action_buttons">
-	    <button
-	        type="submit"
-	        accesskey="s"
-	        title="<__trans phrase="Save this [_1] (s)" params="<mt:var name="object_label" lower_case="1">">"
-	        class="primary-button"
-	        ><__trans phrase="Save"></button>
-	    <mt:if name="id"><button
-	        onclick="doRemoveItems(this.form, '<__trans phrase="field">', '<__trans phrase="fields">', 'id', {'return_args' : '__mode=list_fields&amp;blog_id=<mt:var name="blog_id">'})"
-	        type="submit"
-	        accesskey="x"
-	        title="<__trans phrase="Delete this [_1] (x)" params="<mt:var name="object_label" lower_case="1">">"
-	        ><__trans phrase="Delete"></button></mt:if>
-	</mt:setvarblock>
 	<mt:include name="include/actions_bar.tmpl" bar_position="bottom" hide_pager="1" settings_bar="1">	
 		
 	</form>

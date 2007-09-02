@@ -11,19 +11,23 @@ sub view_link {
 	my $plugin = plugin();
 	
 	my $blog = $app->blog;
+	my $blog_id = $blog->id;
 	my $id = $q->param('id');
+	my $perms  = $app->permissions;
+	my $author = $app->user;
 	
-	my ($param, $link, @targets, @positions);
+	my (%param, $link, @targets, @positions);
 	
 	require LinkRoller::Asset::Link;
 	if($id) {
 		$link = LinkRoller::Asset::Link->load($id);
-		$param = $link->column_values();
+		my $values = $link->column_values();
+		%param = (%$values);
 		
 		my $meta_columns = LinkRoller::Asset::Link->properties->{meta_columns} || {};
 	
 		foreach my $col (keys %$meta_columns) {
-			$param->{$col} = $link->$col();
+			$param{$col} = $link->$col();
 		}
 		
 		my $tags = $link->tags;
@@ -31,20 +35,66 @@ sub view_link {
 		        require MT::Tag;
 		        my $tag_delim = chr($app->user->entry_prefs->{tag_delim});
 		        $tags = MT::Tag->join($tag_delim, $link->tags);
-		        $param->{tags} = $tags;	
+		        $param{tags} = $tags;	
 	  	}
 	}
 	
-	$param->{blog_id} ||= $blog->id;
-	$param->{saved} = $q->param('saved') || 0;
+	## Now load user's preferences and customization for new/edit
+    ## entry page.
+    if ($perms) {
+		my $link_prefs = $perms->link_prefs || 'hidden,name,url,description,tags|Bottom';
+        my $pref_param = $app->load_entry_prefs( $link_prefs );
+        %param = ( %param, %$pref_param );
+        $param{disp_prefs_bar_colspan} = $param{new_object} ? 1 : 2;
+
+        # Completion for tags
+        my $auth_prefs = $author->entry_prefs;
+        if ( my $delim = chr( $auth_prefs->{tag_delim} ) ) {
+            if ( $delim eq ',' ) {
+                $param{'auth_pref_tag_delim_comma'} = 1;
+            }
+            elsif ( $delim eq ' ' ) {
+                $param{'auth_pref_tag_delim_space'} = 1;
+            }
+            else {
+                $param{'auth_pref_tag_delim_other'} = 1;
+            }
+            $param{'auth_pref_tag_delim'} = $delim;
+        }
+
+        require MT::ObjectTag;
+        my $count = MT::Tag->count(
+            undef,
+            {
+                'join' => MT::ObjectTag->join_on(
+                    'tag_id',
+                    {
+                        blog_id           => $blog_id,
+                        object_datasource => LinkRoller::Asset::Link->datasource
+                    },
+                    { unique => 1 }
+                )
+            }
+        );
+        if ( $count > 1000 ) {    # FIXME: Configurable limit?
+            $param{defer_tag_load} = 1;
+        }
+        else {
+            require JSON;
+            $param{tags_js} =
+              JSON::objToJson(
+                MT::Tag->cache( blog_id => $blog_id, class => 'LinkRoller::Asset::Link' )
+              );
+        }
+    }
 	
-	eval { MT::Plugin::CustomFields->instance; };
-	$param->{customfields} = 1 unless $@;
+	$param{blog_id} ||= $blog->id;
+	$param{saved} = $q->param('saved') || 0;
 	
-	push @{$param->{targets}}, { target_name => $_ }
+	push @{$param{targets}}, { target_name => $_ }
 		foreach qw( _self _blank _parent _top );
 		
-	push @{$param->{positions}}, { position_i => $_ }
+	push @{$param{positions}}, { position_i => $_ }
 		foreach (1..100);
 		
 	$app->add_breadcrumb($app->translate("Links"), 
@@ -52,7 +102,7 @@ sub view_link {
 
 	$app->add_breadcrumb($app->translate($id ? 'New Link' : 'Edit Link'));
 	
-	return $app->build_page($plugin->load_tmpl('edit_link.tmpl'), $param);
+	return $app->build_page($plugin->load_tmpl('edit_link.tmpl'), \%param);
 }
 
 sub save_link {
@@ -100,6 +150,21 @@ sub save_link {
 	$app->add_return_arg( id => $link->id )
 		if !$id;
 	$app->call_return( saved => 1 );
+}
+
+sub save_link_prefs {
+    my $app   = shift;
+    my $perms = $app->permissions
+      or return $app->error( $app->translate("No permissions") );
+    $app->validate_magic() or return;
+    my $q     = $app->param;
+    my $prefs = $app->_entry_prefs_from_params;
+    $perms->link_prefs($prefs);
+    $perms->save
+      or return $app->error(
+        $app->translate( "Saving permissions failed: [_1]", $perms->errstr ) );
+    $app->send_http_header("text/json");
+    return "true";
 }
 
 sub plugin { MT::Plugin::LinkRoller->instance; }
