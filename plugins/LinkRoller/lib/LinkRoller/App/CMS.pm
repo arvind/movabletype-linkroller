@@ -15,6 +15,7 @@ sub view_link {
 	my $id = $q->param('id');
 	my $perms  = $app->permissions;
 	my $author = $app->user;
+	my $is_dialog = $q->param('is_dialog') || 0;
 	
 	my (%param, $link, @targets, @positions);
 	
@@ -27,7 +28,8 @@ sub view_link {
 		my $meta_columns = LinkRoller::Asset::Link->properties->{meta_columns} || {};
 	
 		foreach my $col (keys %$meta_columns) {
-			$param{$col} = $link->$col();
+			$param{$col} =
+              defined $q->param($col) ? $q->param($col) : $link->$col();
 		}
 		
 		my $tags = $link->tags;
@@ -102,7 +104,7 @@ sub view_link {
 
 	$app->add_breadcrumb($app->translate($id ? 'New Link' : 'Edit Link'));
 	
-	return $app->build_page($plugin->load_tmpl('edit_link.tmpl'), \%param);
+	return $app->build_page($plugin->load_tmpl($is_dialog ? 'quickadd.tmpl' : 'edit_link.tmpl'), \%param);
 }
 
 sub save_link {
@@ -120,6 +122,18 @@ sub save_link {
 	} else {
 		$link = LinkRoller::Asset::Link->new;
 	}
+	
+	if($q->param('quickadd')){
+	    my $ua = MT->new_ua;
+	    my $req = HTTP::Request->new('GET', $q->param('url'));
+	    my $result = $ua->request( $req );
+	    $q->param('label', $result->title);
+	    my $dat = $result->content;
+			$dat =~ m!<\s*?meta\s*?name="description"\s*?content="(.*?)"\s*?/?\s*?>!i; 
+		$q->param('description', $1);
+		$dat =~ m!<\s*?meta\s*?name="(author|dc\.creator|dc\.publisher)"\s*?content="(.*?)"\s*?/?\s*?>!i;
+		$q->param('blog_author', $2);
+   	}
 		
 	my $names  = $link->column_names;
     my %values = map { $_ => ( scalar $q->param($_) ) } @$names;

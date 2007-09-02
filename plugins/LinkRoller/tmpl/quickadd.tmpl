@@ -1,0 +1,40 @@
+<mt:setvarblock name="page_title"><__trans phrase="New Link"></mt:setvarblock>
+<mt:setvarblock name="return_args">__mode=view_link&blog_id=<mt:var name="blog_id"></mt:setvarblock>
+<mt:include name="dialog/header.tmpl">
+	<form name="save_link" action="<mt:var name="script_url">" method="post" target="_top">
+		<input type="hidden" name="__mode" value="save_link" id="__mode" />
+		<mt:if name="id"><input type="hidden" name="id" value="<mt:var name="id">" id="id" /></mt:if>
+		<input type="hidden" name="quickadd" value="1" id="quickadd" />
+		<input type="hidden" name="blog_id" value="<mt:var name="blog_id">" id="blog_id" />
+		<input type="hidden" name="return_args" value="<mt:var name="return_args" escape="html">" id="return_args" />
+		<input type="hidden" name="magic_token" value="<mt:var name="magic_token" escape="html">" id="magic_token" />
+			
+			<mtapp:setting
+			 id="url"
+			 label="<__trans phrase="URL">"
+			 label_class="top-label"
+			 required="1">
+				<div class="textarea-wrapper">
+					<input type="text" name="url" value="<mt:var name="url" escape="html" default="http://">" id="url" class="full-width" />
+				</div>			
+			</mtapp:setting>
+
+
+			<div class="actions-bar">
+			    <div class="actions-bar-inner pkg actions">
+			        <button
+			            type="submit"
+			            accesskey="s"
+			            title="<__trans phrase="Save">"
+			            class="primary-button"
+			            ><__trans phrase="Save"></button>
+			        <button
+			            onclick="closeDialog(); return false"
+			            type="submit"
+			            accesskey="x"
+			            title="<__trans phrase="Cancel (x)">"
+			            ><__trans phrase="Cancel"></button>
+			    </div>
+			</div>
+	</form>
+<mt:include name="dialog/footer.tmpl">

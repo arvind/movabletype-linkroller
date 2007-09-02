@@ -47,9 +47,10 @@ sub init_registry {
 					'create:link' => {
 						label      => "Link",
 			            order      => 201,
-			            mode       => 'view_link',
-			            permission => 'manage_pages',
-			            view       => "blog",
+			            dialog     => 'view_link&is_dialog=1',
+						args       => { 'is_dialog' => 1 },
+						view       => "blog",
+			            permission => 'manage_pages'			            
 					}
 				},
 				methods => {
