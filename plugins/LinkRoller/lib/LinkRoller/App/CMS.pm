@@ -181,6 +181,16 @@ sub save_link_prefs {
     return "true";
 }
 
+sub list_asset_src {
+	my ($cb, $app, $tmpl) = @_;
+	
+	my $old = q{<$mt:var name="label" escape="html"$>};
+	$old = quotemeta($old);
+	my $new = q{<mt:if name="class" eq="link"><a href="<mt:var name="script_url">?__mode=view_link&amp;id=<mt:var name="id">&amp;blog_id=<mt:var name="blog_id">"><mt:var name="label" escape="html"></a><mt:else><$mt:var name="label" escape="html"$></mt:if>};
+	
+	$$tmpl =~ s/$old/$new/g;
+}
+
 sub plugin { MT::Plugin::LinkRoller->instance; }
 
 1;

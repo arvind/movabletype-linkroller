@@ -59,6 +59,9 @@ sub init_registry {
 					'save_link_prefs' => '$LinkRoller::LinkRoller::App::CMS::save_link_prefs'
 				}
 			}
+		},
+		callbacks => {
+			'MT::App::CMS::template_source.list_asset' => '$LinkRoller::LinkRoller::App::CMS::list_asset_src'
 		}
 	});
 }
