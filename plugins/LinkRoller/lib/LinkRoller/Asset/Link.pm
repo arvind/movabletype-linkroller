@@ -7,7 +7,7 @@ use strict;
 use base qw( MT::Asset );
 
 __PACKAGE__->install_properties( { class_type => 'link', } );
-__PACKAGE__->install_meta( { columns => [ 'target', 'rel', 'blog_author', 'visible', 'updated' ] } );
+__PACKAGE__->install_meta( { columns => [ 'target', 'rel', 'blog_author', 'hidden', 'updated', 'position' ] } );
 
 sub class_label {
     MT->translate('Link');

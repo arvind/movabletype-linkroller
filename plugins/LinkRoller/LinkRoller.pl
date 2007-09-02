@@ -8,7 +8,7 @@ use MT 4.0;   # requires MT 4.0 or later
 
 use base 'MT::Plugin';
 our $VERSION = '2.6a1';
-our $SCHEMA_VERSION = '2.3';
+our $SCHEMA_VERSION = '2.3001';
 
 my $plugin;
 MT->add_plugin($plugin = __PACKAGE__->new({
@@ -29,7 +29,10 @@ sub init_registry {
 	my $plugin = shift;
 	$plugin->registry({
 		object_types => {
-			'asset.link' => 'LinkRoller::Asset::Link'
+			'asset.link' => 'LinkRoller::Asset::Link',
+			'permission' => {
+				'link_prefs' => 'string(255)'
+			}
 		},
 		permissions => {
 			'blog.manage_links' => {
@@ -47,12 +50,6 @@ sub init_registry {
 			            mode       => 'view_link',
 			            permission => 'manage_pages',
 			            view       => "blog",
-					},
-					'manage:link' => {
-						label      => "Links",
-			            order      => 2999,
-			            mode       => 'list_link',
-			            permission => 'manage_pages'
 					}
 				},
 				methods => {

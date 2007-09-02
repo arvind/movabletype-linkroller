@@ -1,0 +1,273 @@
+<mt:if name="id">
+	<mt:setvar name="page_title" value="<__trans phrase="Edit Link">">
+<mt:else>
+	<mt:setvar name="page_title" value="<__trans phrase="New Link">">
+</mt:if>
+<mt:setvarblock name="related_content">&nbsp;</mt:setvarblock>
+<mt:setvarblock name="html_head" append="1">
+	<script type="text/javascript">
+	<!--
+		function changeTarget(s) {
+			if (s.options[s.selectedIndex].value == 'other') {
+				getByID('other_target_input').style.display = 'block'; 
+				getByID('other_target_input').focus(); 
+				s.style.display='none'; 
+				s.disabled = true;
+			}
+		}
+		
+		function meChecked() {
+		  var eMe = document.getElementById('me');
+		  return eMe.checked;
+		}
+
+		function upit() {
+			var isMe = meChecked(); //document.getElementById('me').checked;
+			var div = document.getElementById('xfn-generator');
+			var inputColl = div.getElementsByTagName('input');
+			var results = document.getElementById('rel');
+			var linkText, linkUrl, inputs = '';
+			//linkText = document.getElementById('linkText').value;
+			//linkUrl = document.getElementById('linkUrl').value;
+			for (i = 0; i < inputColl.length; i++) {
+				if(inputColl[i].id == 'rel' || inputColl[i].id == 'me')
+				continue;
+				inputColl[i].disabled = isMe;
+				inputColl[i].parentNode.className = isMe ? 'disabled' : '';
+				if (!isMe && inputColl[i].checked && inputColl[i].value != '') {
+					inputs += inputColl[i].value + ' ';		
+				}
+			}
+			inputs = inputs.substr(0,inputs.length - 1);
+			if (isMe) inputs='me';
+			results.value = inputs;
+		}
+		
+		function initXFN() {
+			var div = document.getElementById('xfn-generator');
+			var aInputs = div.getElementsByTagName('input');
+	
+			for (var i = 0; i < aInputs.length; i++) {		
+				 aInputs[i].onclick = aInputs[i].onkeyup = upit;
+			}
+
+		}
+	//-->
+	</script>
+	<link rel="stylesheet" href="<mt:var name="static_uri">plugins/LinkRoller/styles-linkroller.css" type="text/css" media="screen" title="LinkRoller Stylesheet" charset="utf-8" />
+</mt:setvarblock>
+<mt:setvar name="position_actions_bottom" value="1">
+<mt:setvarblock name="content_header">
+    <mt:if name="saved">
+        <mtapp:statusmsg
+            id="saved"
+            class="success">
+            <__trans phrase="Your changes have been saved.">
+        </mtapp:statusmsg>
+    </mt:if>
+
+    <mt:if name="saved_deleted">
+        <mtapp:statusmsg
+            id="saved-deleted"
+            class="success">
+            <__trans phrase="The selected link(s) has been deleted from the database.">
+        </mtapp:statusmsg>
+    </mt:if>
+
+	<mtapp:statusmsg
+	 id="blank-fields"
+	 class="error hidden">
+		<__trans phrase="Please ensure all required fields (highlighted) have been filled in.">
+	</mtapp:statusmsg>
+</mt:setvarblock>
+<mt:include name="include/header.tmpl">
+	
+	<form name="save_link" action="<mt:var name="script_url">" method="post">
+		<input type="hidden" name="__mode" value="save_link" id="__mode" />
+		<mt:if name="id"><input type="hidden" name="id" value="<mt:var name="id">" id="id" /></mt:if>
+		<input type="hidden" name="blog_id" value="<mt:var name="blog_id">" id="blog_id" />
+		<input type="hidden" name="return_args" value="<mt:var name="return_args" escape="html">" id="return_args" />
+		<input type="hidden" name="magic_token" value="<mt:var name="magic_token" escape="html">" id="magic_token" />
+			
+	<mtapp:settinggroup id="vitals">
+		<mtapp:setting
+		 id="hide"
+		 label="<__trans phrase="Hide">">
+			<p class="hint"><label><input type="checkbox" name="hidden" value="1" id="hidden"<mt:if name="hidden"> checked="checked"</mt:if> /> <__trans phrase="Check to prevent this link from being published"></label></p>
+		</mtapp:setting>
+		
+		
+		<mtapp:setting
+		 id="label"
+		 label="<__trans phrase="Name">"
+		 required="1">
+			<div class="textarea-wrapper">
+				<input type="text" name="label" value="<mt:var name="label" escape="html">" id="label" class="full-width" />
+			</div>
+		</mtapp:setting>
+		
+		<mtapp:setting
+		 id="url"
+		 label="<__trans phrase="URL">"
+		 required="1">
+			<div class="textarea-wrapper">
+				<input type="text" name="url" value="<mt:var name="url" escape="html" default="http://">" id="url" class="full-width" />
+			</div>			
+		</mtapp:setting>
+		
+		<mtapp:setting
+		 id="blog_author"
+		 label="<__trans phrase="Author(s)">"
+		 hint="<__trans phrase="Who created the content being linked here?">"
+		 show_hint="1">
+			<div class="textarea-wrapper">
+				<input type="text" name="blog_author" value="<mt:var name="blog_author" escape="html">" id="blog_author" class="full-width" />
+			</div>			
+		</mtapp:setting>
+		
+		<mtapp:setting
+		 id="description"
+		 label="<__trans phrase="Description">">
+			<textarea name="description" id="description" class="full-width" rows="5"><mt:var name="description" escape="html"></textarea>
+		</mtapp:setting>
+		
+	</mtapp:settinggroup>
+	
+	<mtapp:settinggroup id="metadata">
+		<h3><__trans phrase="Metadata"></h3>
+		
+		<mtapp:setting
+		 id="tags"
+		 label="<__trans phrase="Tags">">
+			<div class="textarea-wrapper">
+				<input type="text" name="tags" value="<mt:var name="tags" escape="html">" id="tags" class="full-width" />
+			</div>
+		</mtapp:setting>
+		
+		<mtapp:setting
+		 id="target"
+		 label="<__trans phrase="Target">"		 
+		 hint="<__trans phrase="The name of a frame where this link should open">"
+		 show_hint="1">
+			<select name="target" id="target" class="quarter-width" onchange="changeTarget(this);">
+				<option value=""><__trans phrase="Select"></option>
+				<mt:loop name="targets">
+					<option<mt:if name="target_name" eq="$target"> selected="selected"</mt:if>><mt:var name="target_name"></option>
+				</mt:loop>
+				<option value="other"><__trans phrase="Custom"></option>
+			</select>
+			
+			<input type="text" name="target" value="<mt:var name="target" escape="html">" id="other_target_input" class="quarter-width" style="display: none;" />
+		</mtapp:setting>
+		
+		<mt:if name="customfields"><mtapp:fields></mt:if>
+		
+		<mtapp:setting
+		 id="xfn"
+		 label="<__trans phrase="XFN Relationship">">
+			<div class="textarea-wrapper">
+				<input type="text" name="rel" id="rel" size="50" value="<mt:var name="rel">" class="full-width" />
+			</div>
+
+			<div id="xfn-generator">
+				<p><span class="xfn-label"><__trans phrase="identity"></span> <span class="xfn-properties"><label><input class="xfn" type="checkbox" name="identity" value="me" id="me" <mt:if name="rel" like="me">checked="checked"</mt:if>  /> <__trans phrase="another web address of mine"></label></span></p>
+				
+				<p>
+					<span class="xfn-label"><__trans phrase="friendship"></span> 
+				
+					<span class="xfn-properties">	
+					
+						<label><input class="xfn" type="radio" name="friendship" value="acquaintance" id="acquaintance" <mt:if name="rel" like="acquaintance">checked="checked"</mt:if> />  <__trans phrase="acquaintance"></label>
+						
+	                	<label><input class="xfn" type="radio" name="friendship" value="contact" id="contact" <mt:if name="rel" like="contact">checked="checked"</mt:if>  /> <__trans phrase="contact"></label>
+	
+	                	<label><input class="xfn" type="radio" name="friendship" value="friend" id="friend" <mt:if name="rel" like="friend">checked="checked"</mt:if> /> <__trans phrase="friend"></label>
+	
+	                	<label><input name="friendship" type="radio" class="xfn" value="" id="friendship" /> <__trans phrase="none"></label></span>
+				</p>
+			
+				<p>
+					<span class="xfn-label"><__trans phrase="physical"></span>
+				
+					<span class="xfn-properties">
+						<label><input class="xfn" type="checkbox" name="physical" value="met" id="met" <mt:if name="rel" like="met">checked="checked"</mt:if> /> <__trans phrase="met"></label>
+					</span>
+				</p>
+			
+				<p>
+					<span class="xfn-label"><__trans phrase="professional"></span>
+				
+					<span class="xfn-properties">
+						<label><input class="xfn" type="checkbox" name="professional" value="co-worker" id="co-worker" <mt:if name="rel" like="co-worker">checked="checked"</mt:if>  /> <__trans phrase="co-worker"></label>
+
+		                <label><input class="xfn" type="checkbox" name="professional" value="colleague" id="colleague" <mt:if name="rel" like="colleague">checked="checked"</mt:if>  /> <__trans phrase="colleague"></label>					
+					</span>				
+				</p>
+			
+				<p>
+					<span class="xfn-label"><__trans phrase="geographical"></span>
+				
+					<span class="xfn-properties">
+				        <label><input class="xfn" type="radio" name="geographical" value="co-resident" id="co-resident" <mt:if name="rel" like="co-resident">checked="checked"</mt:if>  /> <__trans phrase="co-resident"></label>
+				
+		                <label><input class="xfn" type="radio" name="geographical" value="neighbor" id="neighbor" <mt:if name="rel" like="neighbor">checked="checked"</mt:if>  /> <__trans phrase="neighbor"></label>
+		
+		                <label><input class="xfn" type="radio" name="geographical" value="" id="geographical" /> <__trans phrase="none"></label>
+					</span>
+				</p>
+			
+				<p>
+					<span class="xfn-label"><__trans phrase="family"></span>
+				
+					<span class="xfn-properties">
+						<label><input class="xfn" type="radio" name="family" value="child" id="child" <mt:if name="rel" like="child">checked="checked"</mt:if>  /> <__trans phrase="child"></label>
+						
+		                <label><input class="xfn" type="radio" name="family" value="kin" id="kin" <mt:if name="rel" like="kin">checked="checked"</mt:if>  /> <__trans phrase="kin"></label>
+		
+		                <label><input class="xfn" type="radio" name="family" value="parent" id="parent" <mt:if name="rel" like="parent">checked="checked"</mt:if> /> <__trans phrase="parent"></label>
+		
+		                <label><input class="xfn" type="radio" name="family" value="sibling" id="sibling" <mt:if name="rel" like="sibling">checked="checked"</mt:if> /> <__trans phrase="sibling"></label>
+		
+		                <label><input class="xfn" type="radio" name="family" value="spouse" id="spouse" <mt:if name="rel" like="spouse">checked="checked"</mt:if> /> <__trans phrase="spouse"></label>
+
+		                <label><input class="xfn" type="radio" name="family" value="" id="family"  />  <__trans phrase="none"></label>
+					</span>
+				</p>
+			
+				<p>
+					<span class="xfn-label"><__trans phrase="romantic"></span>
+				
+					<span class="xfn-properties">
+						<label><input class="xfn" type="checkbox" name="romantic" value="muse" id="muse" <mt:if name="rel" like="muse">checked="checked"</mt:if> /> <__trans phrase="muse"></label>
+						
+		                <label><input class="xfn" type="checkbox" name="romantic" value="crush" id="crush" <mt:if name="rel" like="crush">checked="checked"</mt:if> /> <__trans phrase="crush"></label>
+		
+		                <label><input class="xfn" type="checkbox" name="romantic" value="date" id="date" <mt:if name="rel" like="date">checked="checked"</mt:if> /> <__trans phrase="date"></label>
+		
+		                <label><input class="xfn" type="checkbox" name="romantic" value="sweetheart" id="romantic" <mt:if name="rel" like="sweetheart">checked="checked"</mt:if> /> <__trans phrase="sweetheart"></label>
+					</span>
+				</p>
+			</div>
+		</mtapp:setting>
+		
+	</mtapp:settinggroup>
+	
+	<mt:setvarblock name="action_buttons">
+	    <button
+	        type="submit"
+	        accesskey="s"
+	        title="<__trans phrase="Save this [_1] (s)" params="<mt:var name="object_label" lower_case="1">">"
+	        class="primary-button"
+	        ><__trans phrase="Save"></button>
+	    <mt:if name="id"><button
+	        onclick="doRemoveItems(this.form, '<__trans phrase="field">', '<__trans phrase="fields">', 'id', {'return_args' : '__mode=list_fields&amp;blog_id=<mt:var name="blog_id">'})"
+	        type="submit"
+	        accesskey="x"
+	        title="<__trans phrase="Delete this [_1] (x)" params="<mt:var name="object_label" lower_case="1">">"
+	        ><__trans phrase="Delete"></button></mt:if>
+	</mt:setvarblock>
+	<mt:include name="include/actions_bar.tmpl" bar_position="bottom" hide_pager="1" settings_bar="1">	
+		
+	</form>
+	
+<mt:include name="include/footer.tmpl">
