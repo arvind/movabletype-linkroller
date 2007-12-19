@@ -308,12 +308,12 @@
 		</mtapp:statusmsg>
 	</div>
 </mt:setvarblock>
-<mt:setvarblock name="related_content">
+<mt:setvarblock name="html_body_footer">
+	<$mt:setvar name="show_display_options_link" value="1"$>
     <mtapp:widget
         id="display-options-widget"
-        label="<__trans phrase="Display Options">"
-        label_link="javascript:void(0)"
-        label_onclick="return toggleEntryDisplayOptions();">
+        class="display-options-widget autolayout-flyout-smart hidden"
+        label="<__trans phrase="Display Options">">
 
         <form name="display-options-form" method="post" action="<mt:var name="script_url">">
             <input type="hidden" id="entry_prefs" name="entry_prefs" value="<mt:if name="disp_prefs_default">Default<mt:else>Custom</mt:if>">
@@ -346,18 +346,19 @@
                         <li><label><input type="radio" name="bar_position" id="bar_position_bottom" value="Bottom"<mt:unless name="position_actions_both"><mt:if name="position_actions_bottom"> checked="checked"</mt:if></mt:unless> onclick="setBarPosition(this)" class="rb" /> <__trans phrase="Bottom"></label></li>
                     </ul>
                 </mtapp:setting>
-            <div class="actions-bar display-options-actions-bar buttons">
-                <div class="actions-bar-inner">
-                    <a href="javascript:void(0)"
-                        onclick="saveEntryFieldOptions(); return toggleEntryDisplayOptions();"
-                        title="<__trans phrase="Save display options">"
-                        ><__trans phrase="OK"></a>
-                    <a href="javascript:void(0)"
-                        onclick="return toggleEntryDisplayOptions();"
-                        title="<__trans phrase="Close display options">"
-                        ><__trans phrase="Cancel"></a>
-                </div>
-            </div>
+	            <div class="actions-bar display-options-actions-bar buttons">
+	                <div class="actions-bar-inner">
+	                    <a href="javascript:void(0)"
+	                        onclick="saveEntryFieldOptions();"
+	                        mt:command="close-flyout"
+	                        title="<__trans phrase="Save display options">"
+	                        ><__trans phrase="OK"></a>
+	                    <a href="javascript:void(0)"
+	                        mt:command="close-flyout"
+	                        title="<__trans phrase="Close display options">"
+	                        ><__trans phrase="Cancel"></a>
+	                </div>
+	            </div>
         </form>
     </mtapp:widget>
 </mt:setvarblock>
@@ -388,7 +389,7 @@
 			
 	<mtapp:settinggroup id="vitals">
 		<mtapp:setting
-		 id="hide"
+		 id="hidden"
 		 shown="$disp_prefs_show_hidden"
 		 label="<__trans phrase="Hide">">
 			<p class="hint"><label><input type="checkbox" name="hidden" value="1" id="hidden"<mt:if name="hidden"> checked="checked"</mt:if> /> <__trans phrase="Check to prevent this link from being published"></label></p>
