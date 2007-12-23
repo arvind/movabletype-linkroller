@@ -3,12 +3,14 @@
 <mt:else>
 	<mt:setvar name="page_title" value="<__trans phrase="New Link">">
 </mt:if>
-<mt:setvarblock name="related_content">&nbsp;</mt:setvarblock>
 <mt:setvarblock name="html_head" append="1">
 	<style type="text/css" media="screen">
 		.actions-bar-top { margin-bottom: 10px; }
 	</style>
 </mt:setvarblock>
+<mt:setvar name="screen_id" value="edit-asset">
+<mt:setvar name="screen_class" value="edit-asset">
+
 <mt:setvarblock name="js_include" append="1">
 	<script type="text/javascript" src="<mt:var name="static_uri">js/tc/focus.js"></script>
     <script type="text/javascript" src="<mt:var name="static_uri">js/tc/tagcomplete.js"></script>
@@ -273,7 +275,7 @@
 	</script>
 	<link rel="stylesheet" href="<mt:var name="static_uri">plugins/LinkRoller/styles-linkroller.css" type="text/css" media="screen" title="LinkRoller Stylesheet" charset="utf-8" />
 </mt:setvarblock>
-<mt:setvar name="position_actions_bottom" value="1">
+
 <mt:setvarblock name="content_header">
 	
 	<div id="msg-block">
@@ -308,6 +310,7 @@
 		</mtapp:statusmsg>
 	</div>
 </mt:setvarblock>
+
 <mt:setvarblock name="html_body_footer">
 	<$mt:setvar name="show_display_options_link" value="1"$>
     <mtapp:widget
@@ -362,6 +365,8 @@
         </form>
     </mtapp:widget>
 </mt:setvarblock>
+
+<mt:setvar name="position_actions_bottom" value="1">
 <mt:setvarblock name="action_buttons">
     <button
         type="submit"
@@ -376,6 +381,46 @@
         title="<__trans phrase="Delete this [_1] (x)" params="<mt:var name="object_label" lower_case="1">">"
         ><__trans phrase="Delete"></button></mt:if>
 </mt:setvarblock>
+<mt:setvarblock name="object_nav">
+    <ul class="object-nav"> 
+        <li id="previous-link"><mt:if name="previous_entry_id"><a href="<$mt:var name="script_url"$>?__mode=view&amp;_type=<$mt:var name="object_type" lower_case="1"$>&amp;id=<$mt:var name="previous_entry_id"$>&amp;blog_id=<$mt:var name="blog_id"$>"><__trans phrase="Previous"></a><mt:else><span><__trans phrase="Previous"></span></mt:if></li>
+        <li id="manage-link"><a href="<$mt:var name="script_url"$>?__mode=list_<$mt:var name="object_type" lower_case="1"$>&amp;blog_id=<$mt:var name="blog_id"$>"><__trans phrase="Manage Assets" params="<$mt:var name="object_label_plural"$>"></a></li>
+        <li id="next-link"><mt:if name="next_entry_id"><a href="<$mt:var name="script_url"$>?__mode=view&amp;_type=<$mt:var name="object_type" lower_case="1"$>&amp;id=<$mt:var name="next_entry_id"$>&amp;blog_id=<$mt:var name="blog_id"$>"><__trans phrase="Next"></a><mt:else><span><__trans phrase="Next"></span></mt:if></li> 
+    </ul>
+</mt:setvarblock>
+
+<mt:setvarblock name="related_content">
+	<mtapp:widget
+        id="asset-stats-widget"
+        class="stats-widget"
+        label="<__trans phrase="Stats">">
+        <ul class="object-stats">
+            <li><__trans phrase="[_1] - Created by [_2]" params="<$mt:date ts="$created_on_ts" relative="1" _default="$created_on_formatted"$>%%<$mt:var name="created_by" escape="html"$>"></li>
+        <mt:if name="modified_by">
+            <li><__trans phrase="[_1] - Modified by [_2]" params="<$mt:date ts="$modified_on_ts" relative="1" _default="$modified_on_formatted"$>%%<$mt:var name="modified_by" escape="html"$>"></li>
+        </mt:if>
+		</ul>
+   </mtapp:widget>	
+
+	<mtapp:widget
+		id="asset-preview-widget"
+		class="stats-widget"
+		label="<__trans phrase="Link Preview">">
+
+		<mt:if name="id">
+		<div align="center">
+
+			<div class="asset-preview">
+				<a href="<mt:var name="url">"><img title="Powered by Snap Shots (tm)" src="http://shots.snap.com/preview/?url=<mt:var name="url">" /></a>
+			</div>
+
+			<p><a href="<mt:var name="url">"><__trans phrase="View Link"></a></p>
+		</div>	
+		</mt:if>
+
+	</mtapp:widget>
+
+</mt:setvarblock>
 <mt:include name="include/header.tmpl">
 	
 	<form name="save_link" action="<mt:var name="script_url">" method="post">
@@ -388,14 +433,6 @@
 	<mt:include name="include/actions_bar.tmpl" hide_pager="1" settings_bar="1">
 			
 	<mtapp:settinggroup id="vitals">
-		<mtapp:setting
-		 id="hidden"
-		 shown="$disp_prefs_show_hidden"
-		 label="<__trans phrase="Hide">">
-			<p class="hint"><label><input type="checkbox" name="hidden" value="1" id="hidden"<mt:if name="hidden"> checked="checked"</mt:if> /> <__trans phrase="Check to prevent this link from being published"></label></p>
-		</mtapp:setting>
-		
-		
 		<mtapp:setting
 		 id="label"
 		 label="<__trans phrase="Name">"

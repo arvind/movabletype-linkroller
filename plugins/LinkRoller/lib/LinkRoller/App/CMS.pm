@@ -5,40 +5,26 @@ package LinkRoller::App::CMS;
 
 use strict;
 
-sub view_link {
-	my $app = shift;
-	my $q = $app->param;
-	my $plugin = plugin();
+use MT::Util qw( format_ts );
+
+sub edit_asset_param {
+	my ($cb, $app, $param, $tmpl) = @_;
 	
-	my $blog = $app->blog;
-	my $blog_id = $blog->id;
-	my $id = $q->param('id');
+	return 1 unless $param->{class} eq 'link';
+	
+	my $class = $app->model('asset.link');
+	my $id = $app->param('id');
 	my $perms  = $app->permissions;
-	my $author = $app->user;
-	my $is_dialog = $q->param('is_dialog') || 0;
 	
-	my (%param, $link, @targets, @positions);
-	
-	require LinkRoller::Asset::Link;
 	if($id) {
-		$link = LinkRoller::Asset::Link->load($id);
-		my $values = $link->column_values();
-		%param = (%$values);
+		my $link = $class->load($id);
 		
-		my $meta_columns = LinkRoller::Asset::Link->properties->{meta_columns} || {};
+		my $meta_columns = $class->properties->{meta_columns} || {};
 	
 		foreach my $col (keys %$meta_columns) {
-			$param{$col} =
-              defined $q->param($col) ? $q->param($col) : $link->$col();
+			$param->{$col} =
+              defined $app->param($col) ? $app->param($col) : $link->$col();
 		}
-		
-		my $tags = $link->tags;
-	  	if(defined $tags) {
-		        require MT::Tag;
-		        my $tag_delim = chr($app->user->entry_prefs->{tag_delim});
-		        $tags = MT::Tag->join($tag_delim, $link->tags);
-		        $param{tags} = $tags;	
-	  	}
 	}
 	
 	## Now load user's preferences and customization for new/edit
@@ -46,65 +32,23 @@ sub view_link {
     if ($perms) {
 		my $link_prefs = $perms->link_prefs || 'hidden,name,url,description,tags|Bottom';
         my $pref_param = $app->load_entry_prefs( $link_prefs );
-        %param = ( %param, %$pref_param );
-        $param{disp_prefs_bar_colspan} = $param{new_object} ? 1 : 2;
-
-        # Completion for tags
-        my $auth_prefs = $author->entry_prefs;
-        if ( my $delim = chr( $auth_prefs->{tag_delim} ) ) {
-            if ( $delim eq ',' ) {
-                $param{'auth_pref_tag_delim_comma'} = 1;
-            }
-            elsif ( $delim eq ' ' ) {
-                $param{'auth_pref_tag_delim_space'} = 1;
-            }
-            else {
-                $param{'auth_pref_tag_delim_other'} = 1;
-            }
-            $param{'auth_pref_tag_delim'} = $delim;
-        }
-
-        require MT::ObjectTag;
-        my $count = MT::Tag->count(
-            undef,
-            {
-                'join' => MT::ObjectTag->join_on(
-                    'tag_id',
-                    {
-                        blog_id           => $blog_id,
-                        object_datasource => LinkRoller::Asset::Link->datasource
-                    },
-                    { unique => 1 }
-                )
-            }
-        );
-        if ( $count > 1000 ) {    # FIXME: Configurable limit?
-            $param{defer_tag_load} = 1;
-        }
-        else {
-            require JSON;
-            $param{tags_js} =
-              JSON::objToJson(
-                MT::Tag->cache( blog_id => $blog_id, class => 'LinkRoller::Asset::Link' )
-              );
-        }
-    }
+        %$param = ( %$param, %$pref_param );
+	}
 	
-	$param{blog_id} ||= $blog->id;
-	$param{saved} = $q->param('saved') || 0;
-	
-	push @{$param{targets}}, { target_name => $_ }
+	push @{$param->{targets}}, { target_name => $_ }
 		foreach qw( _self _blank _parent _top );
 		
-	push @{$param{positions}}, { position_i => $_ }
+	push @{$param->{positions}}, { position_i => $_ }
 		foreach (1..100);
-		
-	$app->add_breadcrumb($app->translate("Links"), 
-		$app->uri('mode' => 'list_link', args => { $blog ? (blog_id => $blog->id) : () }));
+}
 
-	$app->add_breadcrumb($app->translate($id ? 'New Link' : 'Edit Link'));
+sub edit_asset_src {
+	my ($cb, $app, $tmpl) = @_;
 	
-	return $app->build_page($plugin->load_tmpl($is_dialog ? 'quickadd.tmpl' : 'edit_link.tmpl'), \%param);
+	my $plugin = plugin();	
+	my $edit_link_tmpl = File::Spec->catdir($plugin->path,'tmpl','edit_link.tmpl');
+	
+	$$tmpl = '<mt:if name="class" eq="link"><mt:include name="'.$edit_link_tmpl.'"><mt:else>'.$$tmpl.'</mt:if>';
 }
 
 sub save_link {
@@ -113,14 +57,15 @@ sub save_link {
 	
 	my $blog_id = $q->param('blog_id');
 	my $id = $q->param('id');
+	my $class = $app->model('asset.link');
 	
 	my ($link);
 	
-	require LinkRoller::Asset::Link;
+
 	if($id) {
-		$link = LinkRoller::Asset::Link->load($id);
+		$link = $class->load($id);
 	} else {
-		$link = LinkRoller::Asset::Link->new;
+		$link = $class->new;
 	}
 	
 	if($q->param('quickadd')){
@@ -137,7 +82,7 @@ sub save_link {
 		
 	my $names  = $link->column_names;
     my %values = map { $_ => ( scalar $q->param($_) ) } @$names;
-	my $meta_columns = LinkRoller::Asset::Link->properties->{meta_columns} || {};
+	my $meta_columns = $class->properties->{meta_columns} || {};
 
 	foreach my $col (keys %$meta_columns) {
 		$values{$col} = $q->param($col);
