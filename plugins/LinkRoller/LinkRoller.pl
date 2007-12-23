@@ -47,14 +47,14 @@ sub init_registry {
 					'create:link' => {
 						label      => "Link",
 			            order      => 201,
-			            dialog     => 'view_link&is_dialog=1',
+			            dialog     => 'quickadd_link&is_dialog=1',
 						args       => { 'is_dialog' => 1 },
 						view       => "blog",
 			            permission => 'manage_pages'			            
 					}
 				},
 				methods => {
-					# 'view_link' => '$LinkRoller::LinkRoller::App::CMS::view_link',
+					'quickadd_link' => '$LinkRoller::LinkRoller::App::CMS::quickadd_link',
 					'save_link' => '$LinkRoller::LinkRoller::App::CMS::save_link',
 					'save_link_prefs' => '$LinkRoller::LinkRoller::App::CMS::save_link_prefs'
 				}

@@ -1,5 +1,5 @@
 <mt:setvarblock name="page_title"><__trans phrase="New Link"></mt:setvarblock>
-<mt:setvarblock name="return_args">__mode=view_link&blog_id=<mt:var name="blog_id"></mt:setvarblock>
+<mt:setvarblock name="return_args">__mode=view&_type=asset&blog_id=<mt:var name="blog_id"></mt:setvarblock>
 <mt:include name="dialog/header.tmpl">
 	<form name="save_link" action="<mt:var name="script_url">" method="post" target="_top">
 		<input type="hidden" name="__mode" value="save_link" id="__mode" />
