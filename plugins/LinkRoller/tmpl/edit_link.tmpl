@@ -406,8 +406,7 @@
 		id="asset-preview-widget"
 		class="stats-widget"
 		label="<__trans phrase="Link Preview">">
-
-		<mt:if name="id">
+		
 		<div align="center">
 
 			<div class="asset-preview">
@@ -416,9 +415,49 @@
 
 			<p><a href="<mt:var name="url">"><__trans phrase="View Link"></a></p>
 		</div>	
-		</mt:if>
-
 	</mtapp:widget>
+	
+	<mtapp:widget
+        id="appears-in"
+        label="<__trans phrase="Appears in...">">
+        <mt:if name="appears_in">
+            <mt:loop name="appears_in">
+                <mt:if name="__first__">
+        <ul>
+                </mt:if>
+            <li><a href="<mt:var name="script_url">?__mode=edit&amp;_type=<mt:var name="class">&amp;blog_id=<mt:var name="blog_id">&amp;id=<mt:var name="id">" title="<__trans phrase="Published on [_1]" params="<mt:var name="created_on_formatted">">" class="icon-left icon-<mt:var name="class" lower_case="1">"><mt:var name="title"></a></li>
+                <mt:if name="__last__">
+        </ul>
+                </mt:if>
+            </mt:loop>
+        <mt:else>
+            <span class="hint"><__trans phrase="This asset has not been used."></span>
+        </mt:if>
+    </mtapp:widget>
+    <mt:if name="related">
+        <mtapp:widget
+            id="related-assets"
+            label="<__trans phrase="Related Assets">">
+            <ul>
+            <mt:loop name="related">
+                <li class="asset pkg">
+                    <div class="asset-preview">
+                        <a href="<$mt:var name="script_url"$>?__mode=view&amp;_type=<mt:var name="object_type">&amp;id=<$mt:var name="id"$>&amp;blog_id=<$mt:var name="blog_id"$>" title="<$mt:var name="file_name"$>"><img src="<mt:var name="thumbnail_url" escape="html">?ts=<mt:var name="modified_on" escape="url">" width="<mt:var name="thumbnail_width" escape="html">" height="<mt:var name="thumbnail_height" escape="html">" /></a>
+                    </div>
+                    <div class="asset-metadata">
+                        <h3 class="asset-label"><a href="<$mt:var name="script_url"$>?__mode=view&amp;_type=<mt:var name="object_type">&amp;id=<$mt:var name="id"$>&amp;blog_id=<$mt:var name="blog_id"$>" title="<$mt:var name="file_name"$>"><mt:var name="label"></a></h3>
+                        <div class="asset-size">
+                            <mt:var name="created_on_formatted"><br />
+                            <mt:if name="class" eq="image"><mt:var name="image_width" escape="html"> &times; <mt:var name="image_height" escape="html">px</mt:if><br />
+                            <mt:var name="file_size_formatted" escape="html">
+                            <!-- <mt:if var="is_parent">(parent)</mt:if><mt:if var="is_child">(child)</mt:if><mt:if var="is_sibling">(sibling)</mt:if> -->
+                        </div>
+                    </div>
+                </li>
+            </mt:loop>
+            </ul>
+        </mtapp:widget>
+    </mt:if>
 
 </mt:setvarblock>
 <mt:include name="include/header.tmpl">
