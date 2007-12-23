@@ -7,55 +7,15 @@ use strict;
 
 use MT::Util qw( format_ts );
 
+#################################################
+## App Methods 
+#################################################
+
 sub quickadd_link {
 	my $app = shift;
 	my $plugin = plugin();
 	
 	return $app->build_page($plugin->load_tmpl('quickadd.tmpl'));
-}
-
-sub edit_asset_param {
-	my ($cb, $app, $param, $tmpl) = @_;
-	
-	return 1 unless $param->{class} eq 'link';
-	
-	my $class = $app->model('asset.link');
-	my $id = $app->param('id');
-	my $perms  = $app->permissions;
-	
-	if($id) {
-		my $link = $class->load($id);
-		
-		my $meta_columns = $class->properties->{meta_columns} || {};
-	
-		foreach my $col (keys %$meta_columns) {
-			$param->{$col} =
-              defined $app->param($col) ? $app->param($col) : $link->$col();
-		}
-	}
-	
-	## Now load user's preferences and customization for new/edit
-    ## entry page.
-    if ($perms) {
-		my $link_prefs = $perms->link_prefs || 'hidden,name,url,description,tags|Bottom';
-        my $pref_param = $app->load_entry_prefs( $link_prefs );
-        %$param = ( %$param, %$pref_param );
-	}
-	
-	push @{$param->{targets}}, { target_name => $_ }
-		foreach qw( _self _blank _parent _top );
-		
-	push @{$param->{positions}}, { position_i => $_ }
-		foreach (1..100);
-}
-
-sub edit_asset_src {
-	my ($cb, $app, $tmpl) = @_;
-	
-	my $plugin = plugin();	
-	my $edit_link_tmpl = File::Spec->catdir($plugin->path,'tmpl','edit_link.tmpl');
-	
-	$$tmpl = '<mt:if name="class" eq="link"><mt:include name="'.$edit_link_tmpl.'"><mt:else>'.$$tmpl.'</mt:if>';
 }
 
 sub save_link {
@@ -133,6 +93,82 @@ sub save_link_prefs {
     return "true";
 }
 
+#################################################
+## Transformer Callbacks
+#################################################
+
+sub edit_asset_param {
+	my ($cb, $app, $param, $tmpl) = @_;
+	
+	return 1 unless $param->{class} eq 'link';
+	
+	my $class = $app->model('asset.link');
+	my $id = $app->param('id');
+	my $perms  = $app->permissions;
+	
+	if($id) {
+		my $link = $class->load($id);
+		
+		my $meta_columns = $class->properties->{meta_columns} || {};
+	
+		foreach my $col (keys %$meta_columns) {
+			$param->{$col} =
+              defined $app->param($col) ? $app->param($col) : $link->$col();
+		}
+	}
+	
+	## Now load user's preferences and customization for new/edit
+    ## entry page.
+    if ($perms) {
+		my $link_prefs = $perms->link_prefs || 'hidden,name,url,description,tags|Bottom';
+        my $pref_param = $app->load_entry_prefs( $link_prefs );
+        %$param = ( %$param, %$pref_param );
+	}
+	
+	push @{$param->{targets}}, { target_name => $_ }
+		foreach qw( _self _blank _parent _top );
+		
+	push @{$param->{positions}}, { position_i => $_ }
+		foreach (1..100);
+}
+
+sub edit_asset_src {
+	my ($cb, $app, $tmpl) = @_;
+	
+	my $plugin = plugin();	
+	my $edit_link_tmpl = File::Spec->catdir($plugin->path,'tmpl','edit_link.tmpl');
+	
+	$$tmpl = '<mt:if name="class" eq="link"><mt:include name="'.$edit_link_tmpl.'"><mt:else>'.$$tmpl.'</mt:if>';
+}
+
+sub asset_table_src {
+	my ($cb, $app, $tmpl) = @_;
+	my ($old, $new);
+	
+	# First switch to using asset-thumbnail class
+	$old = q{asset-no-thumbnail};
+	$old = quotemeta($old);
+	$new = q{<mt:if name="class" eq="link">asset-thumbnail<mt:else>asset-no-thumbnail</mt:if>};
+	$$tmpl =~ s/$old/$new/;
+	
+	# Then add a div with the thumbnail within
+	$old = q{<span><__trans phrase="No thumbnail image"></span>};
+	$old = quotemeta($old);
+	$new = <<HTML;
+<mt:if name="class" eq="link">
+	<div style="width: 75px; height: 75px; overflow: hidden; margin-left: 2px;">
+		<img title="Powered by Snap Shots (tm)" src="http://shots.snap.com/preview/?url=<mt:var name="url">" />
+	</div>
+<mt:else>
+	<span><__trans phrase="No thumbnail image"></span>
+</mt:if>
+HTML
+	$$tmpl =~ s/$old/$new/;
+}
+
+#################################################
+## Utility Methods 
+#################################################
 
 sub plugin { MT::Plugin::LinkRoller->instance; }
 

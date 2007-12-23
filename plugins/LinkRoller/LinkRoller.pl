@@ -62,7 +62,8 @@ sub init_registry {
 		},
 		callbacks => { # Rather than adding view_link method, just add transformer calls to switch screens when link
 			'MT::App::CMS::template_source.edit_asset' => '$LinkRoller::LinkRoller::App::CMS::edit_asset_src',
-			'MT::App::CMS::template_param.edit_asset'  => '$LinkRoller::LinkRoller::App::CMS::edit_asset_param' 
+			'MT::App::CMS::template_param.edit_asset'  => '$LinkRoller::LinkRoller::App::CMS::edit_asset_param',
+			'MT::App::CMS::template_source.asset_table' => '$LinkRoller::LinkRoller::App::CMS::asset_table_src' 
 		}
 	});
 }
