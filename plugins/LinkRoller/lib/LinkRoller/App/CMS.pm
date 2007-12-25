@@ -1,5 +1,5 @@
 # Link Roller - A plugin for Movable Type.
-# Copyright (c) 2005-2007, Arvind Satyanarayan.
+# Copyright (c) 2005-2008, Arvind Satyanarayan.
 
 package LinkRoller::App::CMS;
 

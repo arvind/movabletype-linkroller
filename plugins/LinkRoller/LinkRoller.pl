@@ -1,5 +1,5 @@
 # Link Roller - A plugin for Movable Type.
-# Copyright (c) 2005-2007, Arvind Satyanarayan.
+# Copyright (c) 2005-2008, Arvind Satyanarayan.
 
 package MT::Plugin::LinkRoller;
 
@@ -46,11 +46,11 @@ sub init_registry {
 				menus => {
 					'create:link'  => {
 						label      => "Link",
-			            order      => 201,
-			            dialog     => 'quickadd_link&is_dialog=1',
+						order      => 201,
+						dialog     => 'quickadd_link&is_dialog=1',
 						args       => { 'is_dialog' => 1 },
 						view       => "blog",
-			            permission => 'manage_pages'			            
+						permission => 'manage_pages'			            
 					}
 				},
 				methods => {
@@ -64,6 +64,13 @@ sub init_registry {
 			'MT::App::CMS::template_source.edit_asset'  => '$LinkRoller::LinkRoller::App::CMS::edit_asset_src',
 			'MT::App::CMS::template_param.edit_asset'   => '$LinkRoller::LinkRoller::App::CMS::edit_asset_param',
 			'MT::App::CMS::template_source.asset_table' => '$LinkRoller::LinkRoller::App::CMS::asset_table_src' 
+		},
+		upgrade_functions => {
+			'mt_blogroll' => {
+				version_limit => $SCHEMA_VERSION, # Because this plugin doesn't share the same sig
+				condition     => sub { eval "require Blogroll::Links"; $@ ? 0 : 1; },
+				code          => '$LinkRoller::LinkRoller::Upgrade::mt_blogroll'
+			}
 		}
 	});
 }
