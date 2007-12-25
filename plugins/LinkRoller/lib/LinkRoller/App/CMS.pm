@@ -26,14 +26,7 @@ sub save_link {
 	my $id = $q->param('id');
 	my $class = $app->model('asset.link');
 	
-	my ($link);
-	
-
-	if($id) {
-		$link = $class->load($id);
-	} else {
-		$link = $class->new;
-	}
+	my $link = $id ? $class->load($id) : $class->new;
 	
 	if($q->param('quickadd')){
 	    my $ua = MT->new_ua;

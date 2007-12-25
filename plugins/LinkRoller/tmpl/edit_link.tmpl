@@ -371,15 +371,9 @@
     <button
         type="submit"
         accesskey="s"
-        title="<__trans phrase="Save this [_1] (s)" params="<mt:var name="object_label" lower_case="1">">"
+        title="<__trans phrase="Save changes to this [lc,_1] (s)" params="<mt:var name="object_label">">"
         class="primary-button"
-        ><__trans phrase="Save"></button>
-    <mt:if name="id"><button
-        onclick="doRemoveItems(this.form, '<__trans phrase="field">', '<__trans phrase="fields">', 'id', {'return_args' : '__mode=list_fields&amp;blog_id=<mt:var name="blog_id">'})"
-        type="submit"
-        accesskey="x"
-        title="<__trans phrase="Delete this [_1] (x)" params="<mt:var name="object_label" lower_case="1">">"
-        ><__trans phrase="Delete"></button></mt:if>
+        ><__trans phrase="Save Changes"></button>
 </mt:setvarblock>
 <mt:setvarblock name="object_nav">
     <ul class="object-nav"> 
@@ -410,8 +404,11 @@
 		<div align="center">
 
 			<div class="asset-preview">
-				<a href="<mt:var name="url">"><img title="Powered by Snap Shots (tm)" src="http://shots.snap.com/preview/?url=<mt:var name="url">" /></a>
+				<a href="<mt:var name="url">"><img alt="Powered by Snap Shots(tm)" title="Powered by Snap Shots(tm)" src="http://shots.snap.com/preview/?url=<mt:var name="url">" /></a>
+				
+				<span class="hint">Powered by <a href="http://www.snap.com/snapshots.php">Snap Shots&trade;</a></span>
 			</div>
+			
 
 			<p><a href="<mt:var name="url">"><__trans phrase="View Link"></a></p>
 		</div>	

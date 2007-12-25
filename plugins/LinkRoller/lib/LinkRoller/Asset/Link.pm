@@ -5,6 +5,7 @@ package LinkRoller::Asset::Link;
 
 use strict;
 use base qw( MT::Asset );
+use MT::Util qw( encode_html );
 
 __PACKAGE__->install_properties( { class_type => 'link', } );
 __PACKAGE__->install_meta( { columns => [ 'target', 'rel', 'blog_author', 'hidden', 'updated', 'position' ] } );
@@ -18,6 +19,21 @@ sub class_label_plural {
 }
 
 sub has_thumbnail { 0; }
+
+sub as_html {
+    my $asset   = shift;
+    my ($param) = @_;
+    my $text = sprintf(
+                        '<a href="%s" title="%s" target="%s" rel="%s">%s</a>',
+                        encode_html( $asset->url ),
+						encode_html( $asset->description ),
+						encode_html( $asset->target ),
+						encode_html( $asset->rel ),
+                        encode_html( $asset->label )
+                        );
+
+	return $asset->enclose($text);
+}
 
 
 1;
