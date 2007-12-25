@@ -83,4 +83,15 @@ sub init_registry {
 	});
 }
 
+# A fix for when a schema_version number doesn't exist within the database
+# Thank you Kevin Shay! <http://tech.groups.yahoo.com/group/mt-dev/message/1582>
+{
+	my $cfg = MT->config;
+	my $plugin_schema = $cfg->PluginSchemaVersion || {};
+	if (!$plugin_schema->{'LinkRoller/LinkRoller.pl'}) {
+		$plugin_schema->{'LinkRoller/LinkRoller.pl'} = -1;
+		$cfg->PluginSchemaVersion($plugin_schema, 1);
+	}
+}
+
 1;
