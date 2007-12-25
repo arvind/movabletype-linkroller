@@ -2,7 +2,7 @@
 # Copyright (c) 2005-2008, Arvind Satyanarayan.
 
 package MT::Plugin::LinkRoller;
-
+use LinkRoller::Import;
 use 5.006;    # requires Perl 5.6.x
 use MT 4.0;   # requires MT 4.0 or later
 
@@ -64,6 +64,14 @@ sub init_registry {
 			'MT::App::CMS::template_source.edit_asset'  => '$LinkRoller::LinkRoller::App::CMS::edit_asset_src',
 			'MT::App::CMS::template_param.edit_asset'   => '$LinkRoller::LinkRoller::App::CMS::edit_asset_param',
 			'MT::App::CMS::template_source.asset_table' => '$LinkRoller::LinkRoller::App::CMS::asset_table_src' 
+		},
+		import_formats => {
+			'import_opml' => {
+				label   => 'Import OPML',
+				type    => 'LinkRoller::Import',
+				handler => 'LinkRoller::Import::import_contents',
+				options_param => 'LinkRoller::Import::get_param',
+			}
 		},
 		upgrade_functions => {
 			'mt_blogroll' => {
