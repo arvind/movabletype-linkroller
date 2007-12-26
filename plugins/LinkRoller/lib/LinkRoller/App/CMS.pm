@@ -37,7 +37,7 @@ sub save_link {
 			$dat =~ m!<\s*?meta\s*?name="description"\s*?content="(.*?)"\s*?/?\s*?>!i; 
 		$q->param('description', $1);
 		$dat =~ m!<\s*?meta\s*?name="(author|dc\.creator|dc\.publisher)"\s*?content="(.*?)"\s*?/?\s*?>!i;
-		$q->param('blog_author', $2);
+		$q->param('link_author', $2);
    	}
 		
 	my $names  = $link->column_names;

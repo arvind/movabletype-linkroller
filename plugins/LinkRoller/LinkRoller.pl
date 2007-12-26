@@ -21,7 +21,7 @@ MT->add_plugin($plugin = __PACKAGE__->new({
 	doc_link        => 'http://plugins.movalog.com/link-roller/install/',
 	schema_version  => $SCHEMA_VERSION
 }));
-
+use LinkRoller::Template::ContextHandlers;
 # Allows external access to plugin object: MT::Plugin::LinkRoller->instance
 sub instance { $plugin; }
 
@@ -79,7 +79,8 @@ sub init_registry {
 				condition     => sub { eval "require Blogroll::Links"; $@ ? 0 : 1; },
 				code          => '$LinkRoller::LinkRoller::Upgrade::mt_blogroll'
 			}
-		}
+		},
+		tags => \&load_tags
 	});
 }
 
@@ -92,6 +93,11 @@ sub init_registry {
 		$plugin_schema->{'LinkRoller/LinkRoller.pl'} = -1;
 		$cfg->PluginSchemaVersion($plugin_schema, 1);
 	}
+}
+
+sub load_tags {
+	require LinkRoller::Template::ContextHandlers;
+	return LinkRoller::Template::ContextHandlers::load_tags();
 }
 
 1;

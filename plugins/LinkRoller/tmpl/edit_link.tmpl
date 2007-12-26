@@ -17,10 +17,10 @@
 	<script type="text/javascript" src="<$mt:var name="static_uri"$>js/tc/client.js"></script>
 	<script type="text/javascript">
 	<!--
-		var customizable_fields = new Array('hidden', 'blog_author', 'description', 'tags', 'target', 'xfn');
+		var customizable_fields = new Array('hidden', 'link_author', 'description', 'tags', 'target', 'xfn');
 		var custom_fields = new Array();
 		<mt:if name="disp_prefs_show_hidden">custom_fields.push('hidden');</mt:if>
-		<mt:if name="disp_prefs_show_blog_author">custom_fields.push('blog_author');</mt:if>
+		<mt:if name="disp_prefs_show_link_author">custom_fields.push('link_author');</mt:if>
 		<mt:if name="disp_prefs_show_description">custom_fields.push('description');</mt:if>
 		<mt:if name="disp_prefs_show_tags">custom_fields.push('tags');</mt:if>
 		<mt:if name="disp_prefs_show_target">custom_fields.push('target');</mt:if>
@@ -330,7 +330,7 @@
 						<li><label><input type="checkbox" name="custom_prefs" id="custom-prefs-description" value="description" onclick="setCustomFields(); return true"<mt:if name="disp_prefs_show_description"> checked="checked"</mt:if> class="cb" /> <__trans phrase="Description"></label></li>
                         <li><label><input type="checkbox" onclick="setCustomFields(); return true;" name="custom_prefs" id="custom-prefs-tags" value="tags" <mt:if name="disp_prefs_show_tags"> checked="checked"</mt:if> class="cb" /> <__trans phrase="Tags"></label></li>
 	
-						<li><label><input type="checkbox" onclick="setCustomFields(); return true;" name="custom_prefs" id="custom-prefs-blog_author" value="blog_author" <mt:if name="disp_prefs_show_blog_author"> checked="checked"</mt:if> class="cb" /> <__trans phrase="Content Author"></label></li>
+						<li><label><input type="checkbox" onclick="setCustomFields(); return true;" name="custom_prefs" id="custom-prefs-link_author" value="link_author" <mt:if name="disp_prefs_show_link_author"> checked="checked"</mt:if> class="cb" /> <__trans phrase="Content Author"></label></li>
 							
 						<li><label><input type="checkbox" onclick="setCustomFields(); return true;" name="custom_prefs" id="custom-prefs-hidden" value="hidden" <mt:if name="disp_prefs_show_hidden"> checked="checked"</mt:if> class="cb" /> <__trans phrase="Visibility"></label></li>
 							
@@ -488,13 +488,13 @@
 		</mtapp:setting>
 		
 		<mtapp:setting
-		 id="blog_author"
-		 shown="$disp_prefs_show_blog_author"
+		 id="link_author"
+		 shown="$disp_prefs_show_link_author"
 		 label="<__trans phrase="Author(s)">"
 		 hint="<__trans phrase="Who created the content being linked here?">"
 		 show_hint="1">
 			<div class="textarea-wrapper">
-				<input type="text" name="blog_author" value="<mt:var name="blog_author" escape="html">" id="blog_author" class="full-width" />
+				<input type="text" name="link_author" value="<mt:var name="link_author" escape="html">" id="link_author" class="full-width" />
 			</div>			
 		</mtapp:setting>
 		
