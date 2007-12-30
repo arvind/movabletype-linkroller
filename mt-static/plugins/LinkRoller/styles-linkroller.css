@@ -1,0 +1,29 @@
+/* edit_link.tmpl */
+
+.edit-asset #related-content .asset-preview {
+	float: none;
+	width: auto;
+	margin-right: 6px;
+}
+
+.edit-asset #related-content .asset-preview .hint {
+	font-size: x-small;
+	color: #FFF;
+}
+
+.edit-asset #url-field .field-content { overflow: visible; }
+
+#xfn-field .textarea-wrapper, #xfn-field .textarea-wrapper input {
+	background: #eee;
+}
+
+#xfn-field .textarea-wrapper { margin-bottom: 10px; }
+
+.xfn-label { 
+	font-weight: bold; 
+	width: 100px;
+	display: block;
+	float: left;
+}
+
+.xfn-properties label { margin-right: 7px; }
