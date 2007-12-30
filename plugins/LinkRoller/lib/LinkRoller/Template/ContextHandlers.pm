@@ -68,34 +68,4 @@ sub _hdlr_link_property {
 	return MT::Template::Context::_hdlr_asset_property($ctx, $args);
 }
 
-sub _hdlr_link_author {
-	my($ctx, $args) = @_;
-	$args->{property} = 'link_author';
-	
-	return _hdlr_asset_property($ctx, $args);
-}
-
-sub _hdlr_link_rel {
-	my($ctx, $args) = @_;
-	$args->{property} = 'rel';
-	
-	return _hdlr_asset_property($ctx, $args);
-}
-
-sub _hdlr_link_target {
-	my($ctx, $args) = @_;
-	$args->{property} = 'target';
-	
-	return _hdlr_asset_property($ctx, $args);
-}
-
-sub _hdlr_link_xfn {
-	my($ctx, $args) = @_;
-	$args->{property} = 'xfn';
-	
-	return _hdlr_asset_property($ctx, $args);
-}
-
-
-
 1;

@@ -21,7 +21,7 @@ MT->add_plugin($plugin = __PACKAGE__->new({
 	doc_link        => 'http://plugins.movalog.com/link-roller/install/',
 	schema_version  => $SCHEMA_VERSION
 }));
-use LinkRoller::Template::ContextHandlers;
+
 # Allows external access to plugin object: MT::Plugin::LinkRoller->instance
 sub instance { $plugin; }
 
