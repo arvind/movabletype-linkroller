@@ -3,11 +3,10 @@
 
 package MT::Plugin::LinkRoller;
 use LinkRoller::Import;
-use 5.006;    # requires Perl 5.6.x
-use MT 4.0;   # requires MT 4.0 or later
+use MT 4.1;   # requires MT 4.1 or later
 
 use base 'MT::Plugin';
-our $VERSION = '2.6a1';
+our $VERSION = '2.6';
 our $SCHEMA_VERSION = '2.3001';
 
 my $plugin;
