@@ -8,26 +8,26 @@ use strict;
 sub load_tags {
 	my $tags = {
 		block => {
-			'Links' => \&_hdlr_links,
-			'LinkIfTagged?' => sub { _hdlr_core_tag('_hdlr_asset_if_tagged', @_); },
-			'LinkTags' => sub { _hdlr_core_tag('_hdlr_asset_tags', @_); },
-			'LinkIsFirstInRow' => sub { _hdlr_core_tag('_hdlr_pass_tokens', @_); },
-            'LinkIsLastInRow' => sub { _hdlr_core_tag('_hdlr_pass_tokens', @_); },
-            'LinksHeader' => sub { _hdlr_core_tag('_hdlr_pass_tokens', @_); },
-            'LinksFooter' => sub { _hdlr_core_tag('_hdlr_pass_tokens', @_); }
+			'RolledLinks' => \&_hdlr_links,
+			'RolledLinkIfTagged?' => sub { _hdlr_core_tag('_hdlr_asset_if_tagged', @_); },
+			'RolledLinkTags' => sub { _hdlr_core_tag('_hdlr_asset_tags', @_); },
+			'RolledLinkIsFirstInRow' => sub { _hdlr_core_tag('_hdlr_pass_tokens', @_); },
+            'RolledLinkIsLastInRow' => sub { _hdlr_core_tag('_hdlr_pass_tokens', @_); },
+            'RolledLinksHeader' => sub { _hdlr_core_tag('_hdlr_pass_tokens', @_); },
+            'RolledLinksFooter' => sub { _hdlr_core_tag('_hdlr_pass_tokens', @_); }
 		},
 		function => {
-			'LinkID' => sub { _hdlr_core_tag('_hdlr_asset_id', @_); },
-			'LinkName' => sub { _hdlr_core_tag('_hdlr_asset_label', @_); },
-			'LinkURL' => sub { _hdlr_core_tag('_hdlr_asset_url', @_); },
-			'LinkDescription' => \&_hdlr_link_description,
-			'LinkAuthor' => sub { _hdlr_link_property('link_author', @_); },
-			'LinkRel' => sub { _hdlr_link_property('rel', @_); },
-			'LinkTarget' => sub { _hdlr_link_property('target', @_); },
-			'LinkXFN' => sub { _hdlr_link_property('xfn', @_); },
-			'LinkDateAdded' => sub { _hdlr_core_tag('_hdlr_asset_date_added', @_); },
-			# 'LinkModifiedDate' => sub { _hdlr_core_tag('_hdlr_link_date_modified', @_); },
-			'LinkAddedBy' => sub { _hdlr_core_tag('_hdlr_asset_added_by', @_); },
+			'RolledLinkID' => sub { _hdlr_core_tag('_hdlr_asset_id', @_); },
+			'RolledLinkName' => sub { _hdlr_core_tag('_hdlr_asset_label', @_); },
+			'RolledLinkURL' => sub { _hdlr_core_tag('_hdlr_asset_url', @_); },
+			'RolledLinkDescription' => \&_hdlr_link_description,
+			'RolledLinkAuthor' => sub { _hdlr_link_property('link_author', @_); },
+			'RolledLinkRel' => sub { _hdlr_link_property('rel', @_); },
+			'RolledLinkTarget' => sub { _hdlr_link_property('target', @_); },
+			'RolledLinkXFN' => sub { _hdlr_link_property('xfn', @_); },
+			'RolledLinkDateAdded' => sub { _hdlr_core_tag('_hdlr_asset_date_added', @_); },
+			# 'RolledLinkModifiedDate' => sub { _hdlr_core_tag('_hdlr_link_date_modified', @_); },
+			'RolledLinkAddedBy' => sub { _hdlr_core_tag('_hdlr_asset_added_by', @_); },
 		}
 	};
 	return $tags;
